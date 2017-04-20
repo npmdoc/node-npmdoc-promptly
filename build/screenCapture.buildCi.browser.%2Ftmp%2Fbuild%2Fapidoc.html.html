@@ -1,0 +1,346 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a>promptly (v2.2.0)</a>
+</h1>
+<h4>Simple command line prompting utility</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.promptly">module promptly</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.promptly.choose">
+            function <span class="apidocSignatureSpan">promptly.</span>choose
+            <span class="apidocSignatureSpan">(message, choices, opts, fn)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.promptly.confirm">
+            function <span class="apidocSignatureSpan">promptly.</span>confirm
+            <span class="apidocSignatureSpan">(message, opts, fn)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.promptly.password">
+            function <span class="apidocSignatureSpan">promptly.</span>password
+            <span class="apidocSignatureSpan">(message, opts, fn)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.promptly.prompt">
+            function <span class="apidocSignatureSpan">promptly.</span>prompt
+            <span class="apidocSignatureSpan">(message, opts, fn)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.promptly" id="apidoc.module.promptly">module promptly</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.promptly.choose" id="apidoc.element.promptly.choose">
+        function <span class="apidocSignatureSpan">promptly.</span>choose
+        <span class="apidocSignatureSpan">(message, choices, opts, fn)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">choose = function (message, choices, opts, fn) {
+    // Arguments parsing
+    if (typeof opts === 'function') {
+        fn = opts;
+        opts = {};
+    } else if (!opts) {
+        opts = {};
+    }
+
+    opts.validator = opts.validator || [];
+    if (!Array.isArray(opts.validator)) {
+        opts.validator = [opts.validator];
+    }
+
+    // Push the choice validator
+    var nrChoices = choices.length;
+    var validator = function (value) {
+        var x;
+
+        for (x = 0; x &lt; nrChoices; x++) {
+            if (choices[x] == value) {
+                return choices[x];
+            }
+        }
+
+        throw new Error('Invalid choice: ' + value);
+    };
+    opts.validator.push(validator);
+
+    // Use prompt()
+    return promptly.prompt(message, opts, fn);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+```js
+promptly.confirm('Are you sure? ', function (err, value) {
+    console.log('Answer:', value);
+});
+```
+
+
+### .<span class="apidocCodeKeywordSpan">choose</span>(message, choices, [opts], fn)
+
+Ask the user to choose between multiple `choices` (array of choices).
+Calls `fn` with `error` and `value`.
+
+Example usage:
+
+```js
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.promptly.confirm" id="apidoc.element.promptly.confirm">
+        function <span class="apidocSignatureSpan">promptly.</span>confirm
+        <span class="apidocSignatureSpan">(message, opts, fn)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">confirm = function (message, opts, fn) {
+    // Arguments parsing
+    if (typeof opts === 'function') {
+        fn = opts;
+        opts = {};
+    } else if (!opts) {
+        opts = {};
+    }
+
+    opts.validator = opts.validator || [];
+    if (!Array.isArray(opts.validator)) {
+        opts.validator = [opts.validator];
+    }
+
+    // Push the validator that will coerse boolean values
+    var validator = function (value) {
+        if (typeof value === 'string') {
+            value = value.toLowerCase();
+        }
+
+        switch (value) {
+        case 'y':
+        case 'yes':
+        case '1':
+        case true:
+            return true;
+        case 'n':
+        case 'no':
+        case '0':
+        case false:
+            return false;
+        }
+
+        throw new Error();
+    };
+    opts.validator.push(validator);
+
+    // Use choose() with true, false
+    return promptly.choose(message, [true, false], opts, fn);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+        return err.retry();
+    }
+
+    console.log('Name is:', value);
+});
+```
+
+### .<span class="apidocCodeKeywordSpan">confirm</span>(message, [opts], fn)
+
+Ask the user to confirm something.
+Calls `fn` with `error` and `value` (true or false).
+
+Truthy values are: `y`, `yes` and `1`.
+Falsy values are `n`, `no`, and `0`.
+Comparison is made in a case insensitive way.
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.promptly.password" id="apidoc.element.promptly.password">
+        function <span class="apidocSignatureSpan">promptly.</span>password
+        <span class="apidocSignatureSpan">(message, opts, fn)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">password = function (message, opts, fn) {
+    // Arguments parsing
+    if (typeof opts === 'function') {
+        fn = opts;
+        opts = {};
+    } else {
+        opts = opts || {};
+    }
+
+    // Set default options
+    if (opts.silent === undefined) {
+        opts.silent = true;
+    }
+    if (opts.trim === undefined) {
+        opts.trim = false;
+    }
+    if (opts['default'] === undefined) {
+        opts['default'] = '';
+    }
+
+    // Use prompt()
+    return promptly.prompt(message, opts, fn);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+```js
+promptly.choose('Do you want an apple or an orange? ', ['apple', 'orange'], function (err, value) {
+    console.log('Answer:', value);
+});
+```
+
+
+### .<span class="apidocCodeKeywordSpan">password</span>(message, [opts], fn)
+
+Prompts for a password, printing the `message` and waiting for the input.
+When available, calls `fn` with `error` and `value`.
+
+The available options are the same, except that `trim` and `silent` default to `false` and `default` is an empty string (to allow
+ empty passwords).
+
+Example usage:
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.promptly.prompt" id="apidoc.element.promptly.prompt">
+        function <span class="apidocSignatureSpan">promptly.</span>prompt
+        <span class="apidocSignatureSpan">(message, opts, fn)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">prompt = function (message, opts, fn) {
+    // Arguments parsing
+    if (typeof opts === 'function') {
+        fn = opts;
+        opts = {};
+    } else if (!opts) {
+        opts = {};
+    }
+
+    if (opts.trim === undefined) {
+        opts.trim = true;
+    }
+    if (opts.retry === undefined) {
+        opts.retry = true;
+    }
+
+    if (fn) {
+        return prompt(message, opts, fn);
+    }
+
+    return new Promise(function (resolve, reject) {
+        prompt(message, opts, function (err, result) {
+            if (err) {
+                return reject(err);
+            }
+
+            resolve(result);
+        });
+    });
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+## Installation
+
+`$ npm install promptly`
+
+
+## API
+
+### .<span class="apidocCodeKeywordSpan">prompt</span>(message, [opts], [fn])
+
+Prompts for a value, printing the `message` and waiting for the input.
+When done, calls `fn` with `error` and `value` or returns a `Promise` if no `fn` is provided.
+
+Default options:
+```js
+{
+...</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
